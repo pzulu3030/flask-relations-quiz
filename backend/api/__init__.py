@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from api.lib.orm import find_all, build_from_record, build_from_records, find
 from api.lib.db import get_db
-from api.models import Person
+from api.models import Person, Address
 
 import json
 import psycopg2
@@ -25,8 +25,33 @@ def create_app(db_name):
         breakpoint()
         return json.dumps(persons_dicts,default = str)
 
-    @app.route('/persons/lastname')
-    def showlastname():
-        pass
+    @app.route('/addresses')
+    def addresses():
+        conn = get_db()
+        cursor = conn.cursor()
+        addresses = find_all(cursor, Address)
+        address_dicts = [address.__dict__ for address in addresses]
+        return json.dumps(address_dicts, default = str)
+    @app.route('/persons/lastname/<lname>')
+    def get_persons(lname):
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('select * from person.person where lastname = %s', (lname,))
+        records = cursor.fetchall()
+        persons = [build_from_record(Person, record) for record in records]
+        person_dicts = [person.__dict__ for person in persons]
+        return json.dumps(person_dicts, default = str)
+    
+    
+
+    @app.route('/person/addresses/<businessentityid>')
+    def person_with_addresses(businessentityid):
+        conn = get_db()
+        cursor = conn.cursor()
+        person = find(cursor, Person, businessentityid)
+        
+        person_json = person.to_json(cursor)
+        return json.dumps(person_json, default = str)
     
     return app
