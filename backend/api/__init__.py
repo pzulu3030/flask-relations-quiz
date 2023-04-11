@@ -29,7 +29,7 @@ def create_app(db_name):
     def addresses():
         conn = get_db()
         cursor = conn.cursor()
-        addresses = find_all(cursor, Address)
+        addresses = find_all(Address,cursor)
         address_dicts = [address.__dict__ for address in addresses]
         return json.dumps(address_dicts, default = str)
     @app.route('/persons/lastname/<lname>')
