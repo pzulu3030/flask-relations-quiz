@@ -23,7 +23,7 @@ def create_app(db_name):
 
         persons_dicts = [person.__dict__ for person in persons]
         breakpoint()
-        return persons_dicts
+        return json.dumps(persons_dicts,default = str)
 
     @app.route('/persons/lastname')
     def showlastname():
